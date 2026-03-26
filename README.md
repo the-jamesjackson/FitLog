@@ -1,5 +1,7 @@
 # FitLog
 
+WILL UPDATE SOON...
+
 Welcome to FitLog, a full-stack fitness tracking web application for logging workouts and managing fitness goals!
 
 ![FitLog Screenshot](images/fitlog-home-screenshot.png)
