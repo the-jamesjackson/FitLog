@@ -8,7 +8,7 @@ dotenv.config();
 
 // Initialize Express application
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Create PostgreSQL connection pool
 const pool = new pg.Pool({
