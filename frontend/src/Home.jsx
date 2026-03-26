@@ -1,19 +1,26 @@
 import { Link } from 'react-router-dom';
 
 const ACTIVITIES = [
-    { label: 'Calisthenics', icon: '💪' },
-    { label: 'Climbing',     icon: '🧗' },
-    { label: 'CrossFit',     icon: '🏋️' },
-    { label: 'Cycling',      icon: '🚴' },
-    { label: 'HIIT',         icon: '⚡' },
-    { label: 'Hiking',       icon: '🥾' },
-    { label: 'Pilates',      icon: '🧘' },
-    { label: 'Running',      icon: '🏃' },
-    { label: 'Sports',       icon: '⚽' },
-    { label: 'Swimming',     icon: '🏊' },
-    { label: 'Walking',      icon: '🚶' },
-    { label: 'Weightlifting',icon: '🏋️' },
-    { label: 'Yoga',         icon: '🌿' },
+    { label: 'Calisthenics',   icon: '💪' },
+    { label: 'Climbing',       icon: '🧗' },
+    { label: 'CrossFit',       icon: '🏋️' },
+    { label: 'Cycling',        icon: '🚴' },
+    { label: 'Elliptical',     icon: '🔄' },
+    { label: 'HIIT',           icon: '⚡' },
+    { label: 'Hiking',         icon: '🥾' },
+    { label: 'Meditation',     icon: '🧠' },
+    { label: 'Pilates',        icon: '🧘' },
+    { label: 'Running',        icon: '🏃' },
+    { label: 'Skiing',         icon: '⛷️' },
+    { label: 'Snowboarding',   icon: '🏂' },
+    { label: 'Sports',         icon: '⚽' },
+    { label: 'Stair Climbing', icon: '🪜' },
+    { label: 'Stretching',     icon: '🤸' },
+    { label: 'Surfing',        icon: '🏄' },
+    { label: 'Swimming',       icon: '🏊' },
+    { label: 'Walking',        icon: '🚶' },
+    { label: 'Weightlifting',  icon: '🏋️' },
+    { label: 'Yoga',           icon: '🌿' },
 ];
 
 export default function Home() {
@@ -66,7 +73,7 @@ export default function Home() {
                     </div>
                     <div className="feature-card">
                         <span className="feature-icon">⚡</span>
-                        <h3>13 Activities</h3>
+                        <h3>{ACTIVITIES.length} Activities</h3>
                         <p>
                             From yoga to weightlifting to climbing — every discipline
                             is supported so nothing goes untracked.

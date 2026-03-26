@@ -1,19 +1,26 @@
 import { useEffect, useState } from "react";
 
 const EXERCISE_ICONS = {
-    Calisthenics:  '💪',
-    Climbing:      '🧗',
-    CrossFit:      '🏋️',
-    Cycling:       '🚴',
-    HIIT:          '⚡',
-    Hiking:        '🥾',
-    Pilates:       '🧘',
-    Running:       '🏃',
-    Sports:        '⚽',
-    Swimming:      '🏊',
-    Walking:       '🚶',
-    Weightlifting: '🏋️',
-    Yoga:          '🌿',
+    Calisthenics:   '💪',
+    Climbing:       '🧗',
+    CrossFit:       '🏋️',
+    Cycling:        '🚴',
+    Elliptical:     '🔄',
+    HIIT:           '⚡',
+    Hiking:         '🥾',
+    Meditation:     '🧠',
+    Pilates:        '🧘',
+    Running:        '🏃',
+    Skiing:         '⛷️',
+    Snowboarding:   '🏂',
+    Sports:         '⚽',
+    'Stair Climbing': '🪜',
+    Stretching:     '🤸',
+    Surfing:        '🏄',
+    Swimming:       '🏊',
+    Walking:        '🚶',
+    Weightlifting:  '🏋️',
+    Yoga:           '🌿',
 };
 
 function formatDate(dateStr) {
@@ -29,9 +36,9 @@ export default function WorkoutForm() {
         duration: "", 
         notes: "" 
     });
-
     const [workouts, setWorkouts] = useState([]);
     const [message, setMessage] = useState({ text: "", type: "" });
+    const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
         fetch("http://localhost:3000/api/exercises")
@@ -63,31 +70,28 @@ export default function WorkoutForm() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:3000/api/workouts", {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json" 
-            },
+        const method = editingId ? "PUT" : "POST";
+        const url = editingId
+            ? `http://localhost:3000/api/workouts/${editingId}`
+            : "http://localhost:3000/api/workouts";
+
+        fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
         })
-            .then((res) => { 
-                if (!res.ok) throw new Error(); 
+            .then((res) => { if (!res.ok) throw new Error(); 
                 return res.json(); 
             })
             .then(() => {
-                showMessage("Workout logged!", "success");
-                setFormData({ 
-                    exercise_id: "",
-                    date: "", 
-                    duration: "", 
-                    notes: "" 
-                });
-
+                showMessage(editingId ? "Workout updated!" : "Workout logged!", "success");
+                setEditingId(null);
+                setFormData({ exercise_id: "", date: "", duration: "", notes: "" });
                 return fetch("http://localhost:3000/api/workouts")
                     .then((res) => res.json())
                     .then((data) => setWorkouts(data));
             })
-            .catch(() => showMessage("Failed to log workout.", "error"));
+            .catch(() => showMessage("Failed to save workout.", "error"));
     };
 
     const handleDelete = (workoutId) => {
@@ -107,6 +111,17 @@ export default function WorkoutForm() {
                 showMessage("Workout deleted.", "success");
             })
             .catch(() => showMessage("Failed to delete workout.", "error"));
+    };
+
+    const handleEdit = (workout) => {
+        setEditingId(workout.id);
+        setFormData({
+            exercise_id: workout.exercise_id,
+            date: workout.date.slice(0, 10),
+            duration: workout.duration,
+            notes: workout.notes || "",
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
@@ -190,7 +205,7 @@ export default function WorkoutForm() {
 
                     <div className="form-actions">
                         <button type="submit" className="btn-primary">
-                            + Log Workout
+                            {editingId ? "Update Workout" : "+ Log Workout"}
                         </button>
                     </div>
                 </form>
@@ -231,10 +246,17 @@ export default function WorkoutForm() {
                                     </div>
                                     <button
                                         className="btn-icon-sm"
+                                        onClick={() => handleEdit(w)}
+                                        title="Edit workout"
+                                    >
+                                        ✎
+                                    </button>
+                                    <button
+                                        className="btn-icon-sm"
                                         onClick={() => handleDelete(w.id)}
                                         title="Delete workout"
                                     >
-                                        x
+                                        ✕
                                     </button>
                                 </div>
                             );

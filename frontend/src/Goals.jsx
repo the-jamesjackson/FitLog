@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 
 const CATEGORIES = [
-    'Calisthenics','Climbing','CrossFit','Cycling','HIIT',
-    'Hiking','Pilates','Running','Sports','Swimming',
-    'Walking','Weightlifting','Yoga',
+    'Calisthenics','Climbing','CrossFit','Cycling','Elliptical',
+    'HIIT','Hiking','Meditation','Pilates','Running',
+    'Skiing','Snowboarding','Sports','Stair Climbing','Stretching',
+    'Surfing','Swimming','Walking','Weightlifting','Yoga',
 ];
 
 function formatDate(dateStr) {
@@ -17,6 +18,7 @@ export default function Goals() {
     const [deadline, setDeadline]   = useState("");
     const [goals, setGoals]         = useState([]);
     const [message, setMessage]     = useState({ text: "", type: "" });
+    const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
         fetch("http://localhost:3000/api/goals")
@@ -32,20 +34,31 @@ export default function Goals() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch("http://localhost:3000/api/goals", {
-            method: "POST",
+
+        const method = editingId ? "PUT" : "POST";
+        const url = editingId 
+            ? `http://localhost:3000/api/goals/${editingId}`
+            : "http://localhost:3000/api/goals";
+        
+        fetch(url, {
+            method,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text: goalText, category, deadline }),
         })
-            .then((res) => res.json())
-            .then((savedGoal) => {
-                setGoals((prev) => [savedGoal, ...prev]);
+            .then((res) => { if (!res.ok) throw new Error(); 
+                return res.json(); 
+            })
+            .then(() => {
+                showMessage(editingId ? "Goal updated!" : "Goal added!", "success");
+                setEditingId(null);
                 setGoalText("");
                 setCategory("");
                 setDeadline("");
-                showMessage("Goal added!", "success");
+                return fetch("http://localhost:3000/api/goals")
+                    .then((res) => res.json())
+                    .then((data) => setGoals(data));
             })
-            .catch(() => showMessage("Failed to add goal.", "error"));
+            .catch(() => showMessage("Failed to save goal.", "error"));
     };
 
     const toggleComplete = (id) => {
@@ -67,6 +80,14 @@ export default function Goals() {
             })
             .catch(() => showMessage("Failed to delete goal.", "error"));
     };
+
+    const handleEdit = (goal) => {
+        setEditingId(goal.id);
+        setGoalText(goal.text);
+        setCategory(goal.category || "");
+        setDeadline(goal.deadline ? goal.deadline.slice(0, 10) : "");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
     const active    = goals.filter((g) => !g.completed);
     const completed = goals.filter((g) => g.completed);
@@ -102,7 +123,7 @@ export default function Goals() {
 
                     <div className="form-row">
                         <div className="form-field">
-                            <label className="form-label">Category</label>
+                            <label className="form-label">Category (optional)</label>
                             <select
                                 className="form-select"
                                 value={category}
@@ -128,7 +149,7 @@ export default function Goals() {
 
                     <div className="form-actions">
                         <button type="submit" className="btn-primary">
-                            + Add Goal
+                            {editingId ? "Update Goal" : "+ Add Goal"}
                         </button>
                     </div>
                 </form>
@@ -154,6 +175,7 @@ export default function Goals() {
                                 goal={goal}
                                 onToggle={toggleComplete}
                                 onDelete={handleDelete}
+                                onEdit={handleEdit}
                             />
                         ))}
                     </div>
@@ -173,6 +195,7 @@ export default function Goals() {
                                     goal={goal}
                                     onToggle={toggleComplete}
                                     onDelete={handleDelete}
+                                    onEdit={handleEdit}
                                 />
                             ))}
                         </div>
@@ -183,7 +206,7 @@ export default function Goals() {
     );
 }
 
-function GoalCard({ goal, onToggle, onDelete }) {
+function GoalCard({ goal, onToggle, onDelete, onEdit }) {
     return (
         <div className={`goal-card${goal.completed ? ' done' : ''}`}>
             <div className="goal-body">
@@ -206,6 +229,13 @@ function GoalCard({ goal, onToggle, onDelete }) {
                     title={goal.completed ? 'Mark incomplete' : 'Mark complete'}
                 >
                     ✓
+                </button>
+                <button
+                    className="btn-icon-sm"
+                    onClick={() => onEdit(goal)}
+                    title="Edit goal"
+                >
+                    ✎
                 </button>
                 <button
                     className="btn-icon-sm"
