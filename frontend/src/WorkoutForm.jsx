@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+const API = import.meta.env.VITE_API_URL || "${API}";
+
 const EXERCISE_ICONS = {
     Calisthenics:   '💪',
     Climbing:       '🧗',
@@ -41,7 +43,7 @@ export default function WorkoutForm() {
     const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:3000/api/exercises")
+        fetch("${API}/api/exercises")
             .then((res) => { 
                 if (!res.ok) throw new Error(); 
                 return res.json(); 
@@ -51,7 +53,7 @@ export default function WorkoutForm() {
     }, []);
 
     useEffect(() => {
-        fetch("http://localhost:3000/api/workouts")
+        fetch("${API}/api/workouts")
             .then((res) => res.json())
             .then((data) => setWorkouts(data))
             .catch((err) => console.error("Failed to fetch workouts:", err));
@@ -72,8 +74,8 @@ export default function WorkoutForm() {
 
         const method = editingId ? "PUT" : "POST";
         const url = editingId
-            ? `http://localhost:3000/api/workouts/${editingId}`
-            : "http://localhost:3000/api/workouts";
+            ? `${API}/api/workouts/${editingId}`
+            : "${API}/api/workouts";
 
         fetch(url, {
             method,
@@ -87,7 +89,7 @@ export default function WorkoutForm() {
                 showMessage(editingId ? "Workout updated!" : "Workout logged!", "success");
                 setEditingId(null);
                 setFormData({ exercise_id: "", date: "", duration: "", notes: "" });
-                return fetch("http://localhost:3000/api/workouts")
+                return fetch("${API}/api/workouts")
                     .then((res) => res.json())
                     .then((data) => setWorkouts(data));
             })
@@ -98,7 +100,7 @@ export default function WorkoutForm() {
         if (!confirm("Delete this workout?")) return;
 
         // SEND DELETE REQUEST TO BACKEND
-        fetch(`http://localhost:3000/api/workouts/${workoutId}`, { 
+        fetch(`${API}/api/workouts/${workoutId}`, { 
             method: "DELETE" 
         })
             .then((res) => { 

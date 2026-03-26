@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+const API = import.meta.env.VITE_API_URL || "${API}";
+
 const CATEGORIES = [
     'Calisthenics','Climbing','CrossFit','Cycling','Elliptical',
     'HIIT','Hiking','Meditation','Pilates','Running',
@@ -21,7 +23,7 @@ export default function Goals() {
     const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:3000/api/goals")
+        fetch("${API}/api/goals")
             .then((res) => res.json())
             .then((data) => setGoals(data))
             .catch((err) => console.error("Failed to fetch goals:", err));
@@ -37,8 +39,8 @@ export default function Goals() {
 
         const method = editingId ? "PUT" : "POST";
         const url = editingId 
-            ? `http://localhost:3000/api/goals/${editingId}`
-            : "http://localhost:3000/api/goals";
+            ? `${API}/api/goals/${editingId}`
+            : "${API}/api/goals";
         
         fetch(url, {
             method,
@@ -54,7 +56,7 @@ export default function Goals() {
                 setGoalText("");
                 setCategory("");
                 setDeadline("");
-                return fetch("http://localhost:3000/api/goals")
+                return fetch("${API}/api/goals")
                     .then((res) => res.json())
                     .then((data) => setGoals(data));
             })
@@ -62,7 +64,7 @@ export default function Goals() {
     };
 
     const toggleComplete = (id) => {
-        fetch(`http://localhost:3000/api/goals/${id}/toggle`, { method: "PUT" })
+        fetch(`${API}/api/goals/${id}/toggle`, { method: "PUT" })
             .then((res) => res.json())
             .then((updated) => {
                 setGoals((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
@@ -72,7 +74,7 @@ export default function Goals() {
 
     const handleDelete = (goalId) => {
         if (!confirm("Delete this goal?")) return;
-        fetch(`http://localhost:3000/api/goals/${goalId}`, { method: "DELETE" })
+        fetch(`${API}/api/goals/${goalId}`, { method: "DELETE" })
             .then((res) => { if (!res.ok) throw new Error(); return res.json(); })
             .then(() => {
                 setGoals((prev) => prev.filter((g) => g.id !== goalId));

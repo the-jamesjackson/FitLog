@@ -12,11 +12,8 @@ const port = 3000;
 
 // Create PostgreSQL connection pool
 const pool = new pg.Pool({
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 });
 
 // Middleware: Enable CORS to allow frontend (localhost:5173) to communicate with backend (localhost:3000)
