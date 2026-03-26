@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL || "${API}";
+const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const EXERCISE_ICONS = {
     Calisthenics:   '💪',
@@ -32,28 +32,28 @@ function formatDate(dateStr) {
 
 export default function WorkoutForm() {
     const [exercises, setExercises] = useState([]);
-    const [formData, setFormData] = useState({ 
+    const [formData, setFormData] = useState({
         exercise_id: "",
-        date: "", 
-        duration: "", 
-        notes: "" 
+        date: "",
+        duration: "",
+        notes: ""
     });
     const [workouts, setWorkouts] = useState([]);
     const [message, setMessage] = useState({ text: "", type: "" });
     const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
-        fetch("${API}/api/exercises")
-            .then((res) => { 
-                if (!res.ok) throw new Error(); 
-                return res.json(); 
+        fetch(`${API}/api/exercises`)
+            .then((res) => {
+                if (!res.ok) throw new Error();
+                return res.json();
             })
             .then((data) => setExercises(data))
             .catch((err) => console.error("Error fetching exercises:", err));
     }, []);
 
     useEffect(() => {
-        fetch("${API}/api/workouts")
+        fetch(`${API}/api/workouts`)
             .then((res) => res.json())
             .then((data) => setWorkouts(data))
             .catch((err) => console.error("Failed to fetch workouts:", err));
@@ -75,21 +75,21 @@ export default function WorkoutForm() {
         const method = editingId ? "PUT" : "POST";
         const url = editingId
             ? `${API}/api/workouts/${editingId}`
-            : "${API}/api/workouts";
+            : `${API}/api/workouts`;
 
         fetch(url, {
             method,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
         })
-            .then((res) => { if (!res.ok) throw new Error(); 
-                return res.json(); 
+            .then((res) => { if (!res.ok) throw new Error();
+                return res.json();
             })
             .then(() => {
                 showMessage(editingId ? "Workout updated!" : "Workout logged!", "success");
                 setEditingId(null);
                 setFormData({ exercise_id: "", date: "", duration: "", notes: "" });
-                return fetch("${API}/api/workouts")
+                return fetch(`${API}/api/workouts`)
                     .then((res) => res.json())
                     .then((data) => setWorkouts(data));
             })
@@ -100,12 +100,12 @@ export default function WorkoutForm() {
         if (!confirm("Delete this workout?")) return;
 
         // SEND DELETE REQUEST TO BACKEND
-        fetch(`${API}/api/workouts/${workoutId}`, { 
-            method: "DELETE" 
+        fetch(`${API}/api/workouts/${workoutId}`, {
+            method: "DELETE"
         })
-            .then((res) => { 
+            .then((res) => {
                 if (!res.ok) throw new Error();
-                return res.json(); 
+                return res.json();
             })
             .then(() => {
                 // REMOVE THE DELETED WORKOUT FROM STATE (UPDATE UI)

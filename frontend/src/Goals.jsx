@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = import.meta.env.VITE_API_URL || "${API}";
+const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const CATEGORIES = [
     'Calisthenics','Climbing','CrossFit','Cycling','Elliptical',
@@ -23,7 +23,7 @@ export default function Goals() {
     const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
-        fetch("${API}/api/goals")
+        fetch(`${API}/api/goals`)
             .then((res) => res.json())
             .then((data) => setGoals(data))
             .catch((err) => console.error("Failed to fetch goals:", err));
@@ -40,7 +40,7 @@ export default function Goals() {
         const method = editingId ? "PUT" : "POST";
         const url = editingId 
             ? `${API}/api/goals/${editingId}`
-            : "${API}/api/goals";
+            : `${API}/api/goals`;
         
         fetch(url, {
             method,
@@ -56,7 +56,7 @@ export default function Goals() {
                 setGoalText("");
                 setCategory("");
                 setDeadline("");
-                return fetch("${API}/api/goals")
+                return fetch(`${API}/api/goals`)
                     .then((res) => res.json())
                     .then((data) => setGoals(data));
             })
