@@ -1,10 +1,22 @@
 import { useState, useEffect } from "react";
 
+const CATEGORIES = [
+    'Calisthenics','Climbing','CrossFit','Cycling','HIIT',
+    'Hiking','Pilates','Running','Sports','Swimming',
+    'Walking','Weightlifting','Yoga',
+];
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+}
+
 export default function Goals() {
-    const [goalText, setGoalText] = useState("");
-    const [category, setCategory] = useState("");
-    const [deadline, setDeadline] = useState("");
-    const [goals, setGoals] = useState([]);
+    const [goalText, setGoalText]   = useState("");
+    const [category, setCategory]   = useState("");
+    const [deadline, setDeadline]   = useState("");
+    const [goals, setGoals]         = useState([]);
+    const [message, setMessage]     = useState({ text: "", type: "" });
 
     useEffect(() => {
         fetch("http://localhost:3000/api/goals")
@@ -13,19 +25,17 @@ export default function Goals() {
             .catch((err) => console.error("Failed to fetch goals:", err));
     }, []);
 
+    const showMessage = (text, type) => {
+        setMessage({ text, type });
+        setTimeout(() => setMessage({ text: "", type: "" }), 3500);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        const newGoal = {
-            text: goalText,
-            category,
-            deadline,
-        };
-
         fetch("http://localhost:3000/api/goals", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newGoal),
+            body: JSON.stringify({ text: goalText, category, deadline }),
         })
             .then((res) => res.json())
             .then((savedGoal) => {
@@ -33,133 +43,178 @@ export default function Goals() {
                 setGoalText("");
                 setCategory("");
                 setDeadline("");
+                showMessage("Goal added!", "success");
             })
-            .catch((err) => console.error("Failed to add goal:", err));
+            .catch(() => showMessage("Failed to add goal.", "error"));
     };
 
     const toggleComplete = (id) => {
-        fetch(`http://localhost:3000/api/goals/${id}/toggle`, {
-            method: "PUT",
-        })
+        fetch(`http://localhost:3000/api/goals/${id}/toggle`, { method: "PUT" })
             .then((res) => res.json())
-            .then((updatedGoal) => {
-                setGoals((prev) =>
-                    prev.map((goal) =>
-                        goal.id === updatedGoal.id ? updatedGoal : goal
-                    )
-                );
+            .then((updated) => {
+                setGoals((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
             })
             .catch((err) => console.error("Failed to update goal:", err));
     };
 
     const handleDelete = (goalId) => {
-        if (!confirm("Are you sure you want to delete this goal?")) {
-            return;
-        }
-
-        fetch(`http://localhost:3000/api/goals/${goalId}`, {
-            method: "DELETE",
-        })
-            .then((res) => {
-                if (!res.ok) throw new Error("Failed to delete goal");
-                return res.json();
-            })
+        if (!confirm("Delete this goal?")) return;
+        fetch(`http://localhost:3000/api/goals/${goalId}`, { method: "DELETE" })
+            .then((res) => { if (!res.ok) throw new Error(); return res.json(); })
             .then(() => {
                 setGoals((prev) => prev.filter((g) => g.id !== goalId));
+                showMessage("Goal deleted.", "success");
             })
-            .catch((err) => console.error("Error deleting goal:", err));
-    }
+            .catch(() => showMessage("Failed to delete goal.", "error"));
+    };
+
+    const active    = goals.filter((g) => !g.completed);
+    const completed = goals.filter((g) => g.completed);
 
     return (
-        <div className="container py-3">
-            <h2 className="mb-3">Fitness Goals</h2>
+        <div className="main-content">
+            <div className="page-hero">
+                <div className="container">
+                    <span className="page-eyebrow">Define your path</span>
+                    <h1>Fitness Goals</h1>
+                </div>
+            </div>
 
-            <form onSubmit={handleSubmit} className="mb-5">
-                <div className="mb-3">
-                    <label className="form-label">Goal</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        value={goalText}
-                        onChange={(e) => setGoalText(e.target.value)}
-                        required
-                    />
+            <div className="container" style={{ paddingBottom: '4rem' }}>
+                {message.text && (
+                    <div className={`fitlog-alert ${message.type}`}>
+                        {message.type === 'success' ? '✓' : '✕'} {message.text}
+                    </div>
+                )}
+
+                <form className="fitlog-form" onSubmit={handleSubmit}>
+                    <div className="form-field">
+                        <label className="form-label">Goal</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="e.g. Run a 5K under 25 minutes"
+                            value={goalText}
+                            onChange={(e) => setGoalText(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-row">
+                        <div className="form-field">
+                            <label className="form-label">Category</label>
+                            <select
+                                className="form-select"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                            >
+                                <option value="">Any category…</option>
+                                {CATEGORIES.map((c) => (
+                                    <option key={c} value={c}>{c}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="form-field">
+                            <label className="form-label">Deadline (optional)</label>
+                            <input
+                                type="date"
+                                className="form-control"
+                                value={deadline}
+                                onChange={(e) => setDeadline(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-actions">
+                        <button type="submit" className="btn-primary">
+                            + Add Goal
+                        </button>
+                    </div>
+                </form>
+
+                <hr className="section-divider" />
+
+                {/* Active goals */}
+                <div className="list-section-header" style={{ marginBottom: '1.25rem' }}>
+                    <h2>Active</h2>
+                    {active.length > 0 && <span className="count-badge">{active.length}</span>}
                 </div>
 
-                <div className="mb-3">
-                    <label className="form-label">Category</label>
-                    <select
-                        className="form-select"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                    >
-                        <option value="">Choose...</option>
-                        <option value="Calisthenics">Calisthenics</option>
-                        <option value="Climbing">Climbing</option>
-                        <option value="CrossFit">CrossFit</option>
-                        <option value="Cycling">Cycling</option>
-                        <option value="HIIT">HIIT</option>
-                        <option value="Hiking">Hiking</option>
-                        <option value="Pilates">Pilates</option>
-                        <option value="Running">Running</option>
-                        <option value="Sports">Sports</option>
-                        <option value="Swimming">Swimming</option>
-                        <option value="Walking">Walking</option>
-                        <option value="Weightlifting">Weightlifting</option>
-                        <option value="Yoga">Yoga</option>
-                    </select>
+                {active.length === 0 ? (
+                    <div className="empty-state" style={{ marginBottom: '2.5rem' }}>
+                        <span className="empty-icon">🎯</span>
+                        <p>No active goals — add one above.</p>
+                    </div>
+                ) : (
+                    <div className="items-list" style={{ marginBottom: '3rem' }}>
+                        {active.map((goal) => (
+                            <GoalCard
+                                key={goal.id}
+                                goal={goal}
+                                onToggle={toggleComplete}
+                                onDelete={handleDelete}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* Completed goals */}
+                {completed.length > 0 && (
+                    <>
+                        <div className="list-section-header">
+                            <h3>Completed</h3>
+                            <span className="count-badge">{completed.length}</span>
+                        </div>
+                        <div className="items-list">
+                            {completed.map((goal) => (
+                                <GoalCard
+                                    key={goal.id}
+                                    goal={goal}
+                                    onToggle={toggleComplete}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function GoalCard({ goal, onToggle, onDelete }) {
+    return (
+        <div className={`goal-card${goal.completed ? ' done' : ''}`}>
+            <div className="goal-body">
+                <div className="goal-text">{goal.text}</div>
+                <div className="goal-chips">
+                    {goal.category && (
+                        <span className="goal-chip">{goal.category}</span>
+                    )}
+                    {goal.deadline && (
+                        <span className="goal-chip deadline">
+                            ⏱ {formatDate(goal.deadline)}
+                        </span>
+                    )}
                 </div>
-
-                <div className="mb-3">
-                    <label className="form-label">Deadline (optional)</label>
-                    <input
-                        type="date"
-                        className="form-control"
-                        value={deadline}
-                        onChange={(e) => setDeadline(e.target.value)}
-                    />
-                </div>
-
-                <button type="submit" className="btn btn-success">Add Goal</button>
-            </form>
-
-            <h3 className="mb-3">Your Goals</h3>
-            {goals.length === 0 ? (
-                <p>No goals yet.</p>
-            ) : (
-                <ul className="list-group">
-                    {goals.map((goal) => (
-                        <li
-                            key={goal.id}
-                            className={`list-group-item d-flex justify-content-between align-items-center ${goal.completed ? "list-group-item-success" : ""}`}
-                        >
-                            <div>
-                                <strong>{goal.text}</strong>
-                                {goal.category && ` (${goal.category})`}
-                                {goal.deadline && (
-                                    <small className="text-muted ms-2">
-                                        | Deadline: {new Date(goal.deadline).toLocaleDateString()}
-                                    </small>
-                                )}
-                            </div>
-                            <div>
-                                <button
-                                    className={`btn btn-sm me-2 ${goal.completed ? "btn-outline-secondary" : "btn-outline-success"}`}
-                                    onClick={() => toggleComplete(goal.id)}
-                                >
-                                    {goal.completed ? "Mark Incomplete" : "Mark Complete"}
-                                </button>
-                                <button
-                                    className="btn btn-sm btn-danger"
-                                    onClick={() => handleDelete(goal.id)}
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
+            </div>
+            <div className="goal-actions">
+                <button
+                    className={`btn-icon-sm check${goal.completed ? ' done' : ''}`}
+                    onClick={() => onToggle(goal.id)}
+                    title={goal.completed ? 'Mark incomplete' : 'Mark complete'}
+                >
+                    ✓
+                </button>
+                <button
+                    className="btn-icon-sm"
+                    onClick={() => onDelete(goal.id)}
+                    title="Delete goal"
+                >
+                    ✕
+                </button>
+            </div>
         </div>
     );
 }

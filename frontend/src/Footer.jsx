@@ -1,7 +1,10 @@
 export default function Footer() {
     return (
-        <footer className="text-center text-white py-3 mt-5">
-            2025 James Jackson | Bootstrap 5.3 used for layout
+        <footer className="fitlog-footer">
+            <div className="footer-inner">
+                <span className="footer-brand">FitLog</span>
+                <span className="footer-text">© 2025 James Jackson</span>
+            </div>
         </footer>
     );
 }

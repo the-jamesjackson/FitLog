@@ -1,34 +1,43 @@
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function Navbar() {
+    const [open, setOpen] = useState(false);
+
     return (
-        <nav className="navbar navbar-expand-lg navbar-custom mb-4" style={{ backgroundColor: '#7393B3' }}>
-            <div className="container">
-                <NavLink className="navbar-brand text-white" to="/">FitLog</NavLink>
-                {/* HAMBURGER 🍔‼️ BUTTON */}
-                <button className="navbar-toggler" 
-                type="button" 
-                data-bs-toggle="collapse" 
-                data-bs-target="#navbarNav">
-                    <span className="navbar-toggler-icon"></span>
+        <nav className="fitlog-nav">
+            <div className="nav-inner">
+                <NavLink className="nav-brand" to="/" onClick={() => setOpen(false)}>
+                    <span className="brand-dot" />
+                    FitLog
+                </NavLink>
+
+                <button
+                    className="nav-toggle"
+                    onClick={() => setOpen((o) => !o)}
+                    aria-label="Toggle menu"
+                >
+                    {open ? '✕' : '☰'}
                 </button>
-                {/* COLLAPSES ON SMALL SCREENS */}
-                <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav ms-auto">
-                        <li className="nav-item">
-                            <NavLink className="nav-link text-white" to="/">Home</NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink className="nav-link text-white" to="/log">Workout Log</NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink className="nav-link text-white" to="/goals">Fitness Goals</NavLink>
-                        </li>
-                    </ul>
-                </div>
+
+                <ul className={`nav-links${open ? ' open' : ''}`}>
+                    <li>
+                        <NavLink className="nav-link" to="/" end onClick={() => setOpen(false)}>
+                            Home
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink className="nav-link" to="/log" onClick={() => setOpen(false)}>
+                            Workout Log
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink className="nav-link" to="/goals" onClick={() => setOpen(false)}>
+                            Fitness Goals
+                        </NavLink>
+                    </li>
+                </ul>
             </div>
         </nav>
     );
 }
-

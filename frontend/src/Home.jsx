@@ -1,53 +1,90 @@
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
+import { Link } from 'react-router-dom';
+
+const ACTIVITIES = [
+    { label: 'Calisthenics', icon: '💪' },
+    { label: 'Climbing',     icon: '🧗' },
+    { label: 'CrossFit',     icon: '🏋️' },
+    { label: 'Cycling',      icon: '🚴' },
+    { label: 'HIIT',         icon: '⚡' },
+    { label: 'Hiking',       icon: '🥾' },
+    { label: 'Pilates',      icon: '🧘' },
+    { label: 'Running',      icon: '🏃' },
+    { label: 'Sports',       icon: '⚽' },
+    { label: 'Swimming',     icon: '🏊' },
+    { label: 'Walking',      icon: '🚶' },
+    { label: 'Weightlifting',icon: '🏋️' },
+    { label: 'Yoga',         icon: '🌿' },
+];
 
 export default function Home() {
     return (
-        <>
-            <header className="container text-center" style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                borderRadius: '20px',
-                padding: '4rem 2rem',
-                marginTop: '2rem',
-                marginBottom: '3rem',
-                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)'
-            }}>
-                <h1 className="mb-4" style={{ fontSize: '3.5rem', fontWeight: '700', color: 'white' }}>
-                    Welcome to FitLog
-                </h1>
-                <p className="lead" style={{
-                    fontSize: '1.4rem',
-                    fontWeight: '400',
-                    color: 'white'
-                }}>
-                    Track your workouts, set personal goals, and stay motivated on your fitness journey.
-                </p>
-            </header>
+        <div className="main-content">
+            <section className="home-hero">
+                <div className="container">
+                    <p className="hero-eyebrow">Your fitness tracker</p>
 
-            <section className="container py-3 text-center">
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <h2 className="mb-3">Log your workouts.</h2>
-                        <p className="mb-4" style={{ fontSize: '1.1rem', lineHeight: '1.8' }}>
-                            Log all of your fitness: We've got it all, from cardio to weightlifting to much more.
-                            Use our workout log to record your daily workouts and progress.
-                        </p>
+                    <h1 className="hero-title">
+                        Train
+                        <span className="word-accent">Smarter.</span>
+                    </h1>
+
+                    <p className="hero-subtitle">
+                        Log every rep, every mile, every session. Set goals and
+                        watch your progress compound over time.
+                    </p>
+
+                    <div className="hero-cta-group">
+                        <Link to="/log" className="btn-primary">
+                            Log a Workout
+                        </Link>
+                        <Link to="/goals" className="btn-ghost">
+                            Set a Goal
+                        </Link>
                     </div>
                 </div>
             </section>
 
-            <section className="container py-3 text-center">
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <h2 className="mb-3">Set fitness goals.</h2>
-                        <p className="mb-4" style={{ fontSize: '1.1rem', lineHeight: '1.8' }}>
-                            Turn those goals into reality: Define your goals and track your progress in our fitness goal tracker.
+            <div className="container">
+                <hr className="hero-rule" />
+
+                <div className="feature-grid">
+                    <div className="feature-card">
+                        <span className="feature-icon">📋</span>
+                        <h3>Workout Log</h3>
+                        <p>
+                            Record every session with exercise type, duration, date,
+                            and personal notes. Your full history, always accessible.
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <span className="feature-icon">🎯</span>
+                        <h3>Goal Tracking</h3>
+                        <p>
+                            Define what you're working toward. Set deadlines, assign
+                            categories, and mark goals complete as you crush them.
+                        </p>
+                    </div>
+                    <div className="feature-card">
+                        <span className="feature-icon">⚡</span>
+                        <h3>13 Activities</h3>
+                        <p>
+                            From yoga to weightlifting to climbing — every discipline
+                            is supported so nothing goes untracked.
                         </p>
                     </div>
                 </div>
-            </section>
-        </>
-    )
+
+                <div className="activities-section">
+                    <span className="section-label">Supported Activities</span>
+                    <div className="activities-grid">
+                        {ACTIVITIES.map((a) => (
+                            <span key={a.label} className="activity-pill">
+                                {a.icon} {a.label}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
