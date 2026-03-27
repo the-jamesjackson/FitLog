@@ -2,7 +2,7 @@
 
 A full-stack fitness tracking web application for logging workouts and managing fitness goals.
 
-🔗 **[Live Demo](fitlog-git-main-the-jamesjacksons-projects.vercel.app)**
+🔗 **[Live Demo](https://fitlog-git-main-the-jamesjacksons-projects.vercel.app)**
 
 ![FitLog Screenshot](images/fitlog-home-screenshot.png)
 
